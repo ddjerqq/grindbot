@@ -1,6 +1,5 @@
 ﻿using GrindBot.Application.Abstractions;
 using GrindBot.Application.Services;
-using GrindBot.Infrastructure;
 using GrindBot.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +16,7 @@ public static class ServiceCollectionExt
                 var dataSource = "DB_PATH".FromEnv();
                 options.UseSqlite($"Data Source={dataSource}");
             });
+            services.AddScoped<IAppDbContext, AppDbContext>();
 
             services.AddMemoryCache();
             services.AddSingleton<UserService>();

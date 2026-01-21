@@ -6,15 +6,21 @@ namespace GrindBot.Application.Services;
 
 public sealed class UserService(IAppDbContext db)
 {
-    public async Task EnsureUserExistsAsync(ulong id)
+    /// <summary>
+    /// Ensures the user with the provided snowflake id exists in the database.
+    /// </summary>
+    /// <returns>True if exists, false otherwise</returns>
+    public async Task<bool> EnsureUserExistsAsync(ulong id)
     {
         var user = await db.Users.FindAsync(id);
-        if (user is not null) return;
+        if (user is not null) return true;
 
         user = new User(id);
 
         await db.Users.AddAsync(user);
         await db.SaveChangesAsync();
+        
+        return false;
     }
 
     public async Task UserSentMessage(ulong id)

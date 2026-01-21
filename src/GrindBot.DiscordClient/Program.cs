@@ -28,7 +28,7 @@ var eventHandlerTypes = typeof(Program).Assembly.GetTypes()
     .Where(x => x.GetInterfaces().Contains(typeof(IEventHandler)))
     .ToList();
 
-var intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents;
+var intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents | DiscordIntents.GuildMembers;
 var token = "DISCORD_BOT_TOKEN".FromEnv();
 
 var discord = DiscordClientBuilder.CreateDefault(token, intents)

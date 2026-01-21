@@ -1,6 +1,5 @@
 using DSharpPlus;
 using DSharpPlus.EventArgs;
-using GrindBot.Infrastructure;
 using GrindBot.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
