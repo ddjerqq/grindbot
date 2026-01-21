@@ -1,5 +1,8 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/GrindBot.Application/GrindBot.Application.csproj" />
     <Project Path="src/GrindBot.DiscordClient/GrindBot.DiscordClient.csproj" />
+    <Project Path="src/GrindBot.Domain/GrindBot.Domain.csproj" />
+    <Project Path="src/GrindBot.Infrastructure/GrindBot.Infrastructure.csproj" />
   </Folder>
 </Solution>

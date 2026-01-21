@@ -1,14 +1,13 @@
-﻿using System.Reflection;
-using dotenv.net;
+﻿using dotenv.net;
 using DSharpPlus;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.SlashCommands.InteractionNamingPolicies;
 using DSharpPlus.Entities;
-using GrindBot.DiscordClient;
 using GrindBot.DiscordClient.Common;
-using GrindBot.DiscordClient.Events;
 using Serilog;
+
+#region env and logging
 
 var solutionDir = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent;
 DotEnv.Fluent().WithTrimValues().WithEnvFiles($"{solutionDir}/.env").WithOverwriteExistingVars().Load();
@@ -21,13 +20,18 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
     .CreateLogger();
 
-ulong guildId = ulong.Parse("DISCORD_GUILD_ID".FromEnv());
+#endregion
+
+var guildId = ulong.Parse("DISCORD_GUILD_ID".FromEnv());
 
 var eventHandlerTypes = typeof(Program).Assembly.GetTypes()
     .Where(x => x.GetInterfaces().Contains(typeof(IEventHandler)))
     .ToList();
 
-var discord = DiscordClientBuilder.CreateDefault("DISCORD_BOT_TOKEN".FromEnv(), DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents)
+var intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents;
+var token = "DISCORD_BOT_TOKEN".FromEnv();
+
+var discord = DiscordClientBuilder.CreateDefault(token, intents)
     .ConfigureLogging(loggingBuilder => loggingBuilder.AddSerilog())
     .ConfigureServices(services => services.AddApplicationServices())
     .ConfigureEventHandlers(builder => builder.AddEventHandlers(eventHandlerTypes))

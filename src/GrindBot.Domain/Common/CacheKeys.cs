@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-namespace GrindBot.DiscordClient.Common;
+﻿namespace GrindBot.Domain.Common;
 
 public static class CacheKeys
 {

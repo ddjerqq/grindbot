@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using GrindBot.DiscordClient.Persistence;
+using GrindBot.Application.Abstractions;
+using GrindBot.Domain;
 
-namespace GrindBot.DiscordClient.Services;
+namespace GrindBot.Application.Services;
 
-public sealed class UserService(DiscordDbContext db)
+public sealed class UserService(IAppDbContext db)
 {
     public async Task EnsureUserExistsAsync(ulong id)
     {
@@ -25,9 +26,9 @@ public sealed class UserService(DiscordDbContext db)
         await db.SaveChangesAsync();
     }
 
-    public async Task<User?> GetUser(ulong otherId)
+    public async Task<User> GetUser(ulong otherId)
     {
-        return await db.Users.FindAsync(otherId);
+        return await db.Users.FindAsync(otherId) ?? throw new InvalidOperationException("User not found");
     }
 
     public async Task UserStarredMessage(ulong userId)

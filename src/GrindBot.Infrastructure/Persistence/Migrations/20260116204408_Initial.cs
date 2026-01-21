@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace GrindBot.DiscordClient.Persistence.Migrations
+namespace GrindBot.DiscordClient.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration

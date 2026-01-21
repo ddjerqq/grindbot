@@ -1,5 +1,7 @@
-﻿using GrindBot.DiscordClient.Persistence;
-using GrindBot.DiscordClient.Services;
+﻿using GrindBot.Application.Abstractions;
+using GrindBot.Application.Services;
+using GrindBot.Infrastructure;
+using GrindBot.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace GrindBot.DiscordClient.Common;
@@ -10,7 +12,7 @@ public static class ServiceCollectionExt
     {
         public IServiceCollection AddApplicationServices()
         {
-            services.AddDbContext<DiscordDbContext>(options =>
+            services.AddDbContext<AppDbContext>(options =>
             {
                 var dataSource = "DB_PATH".FromEnv();
                 options.UseSqlite($"Data Source={dataSource}");
@@ -18,6 +20,11 @@ public static class ServiceCollectionExt
 
             services.AddMemoryCache();
             services.AddSingleton<UserService>();
+            
+            services.AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssembly(typeof(IAppDbContext).Assembly);
+            });
 
             return services;
         }

@@ -2,7 +2,7 @@
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Entities;
-using GrindBot.DiscordClient.Services;
+using GrindBot.Application.Services;
 
 namespace GrindBot.DiscordClient.Commands;
 
@@ -12,17 +12,9 @@ public sealed class DailyCommand(UserService userService)
     [Description("Gets your daily reward")]
     public async ValueTask ExecuteAsync(SlashCommandContext context)
     {
-        await userService.EnsureUserExistsAsync(context.User.Id);
         var user = await userService.GetUser(context.User.Id);
-        if (user is null)
-        {
-            await context.RespondAsync("An error occurred while retrieving the user data.");
-            return;
-        }
-
         if (!await userService.TryCollectDailyReward(user, out var collectNextAt))
         {
-            // get milliseconds as unix epoch
             var nextMs = new DateTimeOffset(collectNextAt!.Value).ToUnixTimeMilliseconds();
             await context.RespondAsync($"You cannot collect your daily reward yet. Next collection available at <t:{nextMs}:R>.");
             return;

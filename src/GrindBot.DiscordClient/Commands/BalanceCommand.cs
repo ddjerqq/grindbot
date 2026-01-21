@@ -2,7 +2,7 @@
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Entities;
-using GrindBot.DiscordClient.Services;
+using GrindBot.Application.Services;
 
 namespace GrindBot.DiscordClient.Commands;
 
@@ -13,14 +13,8 @@ public sealed class BalanceCommand(UserService userService)
     public async ValueTask ExecuteAsync(SlashCommandContext context, [Description("The user whose balance you want to access")] DiscordUser? member = null)
     {
         var userId = member?.Id ?? context.User.Id;
-        await userService.EnsureUserExistsAsync(userId);
         var user = await userService.GetUser(userId);
-        if (user is null)
-        {
-            await context.RespondAsync("An error occurred while retrieving the user data.");
-            return;
-        }
-        
+                
         var embed = new DiscordEmbedBuilder()
             .WithColor(DiscordColor.White)
             .WithTitle("💰 User balance")

@@ -2,7 +2,7 @@ using System.ComponentModel;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Entities;
-using GrindBot.DiscordClient.Services;
+using GrindBot.Application.Services;
 
 namespace GrindBot.DiscordClient.Commands;
 
@@ -13,7 +13,6 @@ public sealed class StatsCommand(UserService userService)
     public async ValueTask ExecuteAsync(SlashCommandContext context, [Description("The user whose stats you want to access")] DiscordUser? member = null)
     {
         var userId = member?.Id ?? context.User.Id;
-        await userService.EnsureUserExistsAsync(userId);
         var user = await userService.GetUser(userId);
         
         var embed = new DiscordEmbedBuilder()

@@ -1,12 +1,13 @@
 using DSharpPlus;
 using DSharpPlus.EventArgs;
-using GrindBot.DiscordClient.Persistence;
+using GrindBot.Infrastructure;
+using GrindBot.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 namespace GrindBot.DiscordClient.Events;
 
-public sealed class SessionCreatedEventHandler(DiscordDbContext db) : IEventHandler<SessionCreatedEventArgs>
+public sealed class SessionCreatedEventHandler(AppDbContext db) : IEventHandler<SessionCreatedEventArgs>
 {
     public async Task HandleEventAsync(DSharpPlus.DiscordClient bot, SessionCreatedEventArgs ctx)
     {

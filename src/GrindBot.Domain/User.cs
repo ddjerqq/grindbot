@@ -1,14 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using GrindBot.DiscordClient.Common;
 
-namespace GrindBot.DiscordClient.Persistence;
+namespace GrindBot.Domain;
 
 public sealed class User(ulong id)
 {
-    public static readonly int XpPerMessage = int.Parse("XP__PER_MESSAGE".FromEnv());
-    public static readonly int XpPerStar = int.Parse("XP__PER_STAR".FromEnv());
-    public static readonly int DailyRewardAmount = int.Parse("CURRENCY__DAILY_REWARD_AMOUNT".FromEnv());
+    public static readonly int XpPerMessage = int.Parse((string)"XP__PER_MESSAGE".FromEnv());
+    public static readonly int XpPerStar = int.Parse((string)"XP__PER_STAR".FromEnv());
+    public static readonly int DailyRewardAmount = int.Parse((string)"CURRENCY__DAILY_REWARD_AMOUNT".FromEnv());
 
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public ulong Id { get; init; } = id;

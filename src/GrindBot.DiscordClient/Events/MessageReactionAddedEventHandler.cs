@@ -1,8 +1,8 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using GrindBot.DiscordClient.Common;
-using GrindBot.DiscordClient.Services;
+using GrindBot.Application.Services;
+using GrindBot.Domain.Common;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace GrindBot.DiscordClient.Events;
@@ -18,7 +18,6 @@ public sealed class MessageReactionAddedEventHandler(UserService userService, IM
         if (entry != ctx.Message.Id) return;
 
         cache.Remove(CacheKeys.CurrentStarMessageIdKey);
-        await userService.EnsureUserExistsAsync(ctx.User.Id);
         await userService.UserStarredMessage(ctx.User.Id);
         await ctx.Message.Channel!.SendMessageAsync($"{ctx.User.Mention} starred a message! ⭐");
     }

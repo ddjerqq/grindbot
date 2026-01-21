@@ -2,7 +2,7 @@
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Entities;
-using GrindBot.DiscordClient.Services;
+using GrindBot.Application.Services;
 
 namespace GrindBot.DiscordClient.Commands;
 
@@ -20,18 +20,9 @@ public sealed class GiveCommand(UserService userService)
             await context.RespondAsync("You must give a positive amount of money.");
             return;
         }
-        
-        await userService.EnsureUserExistsAsync(context.User.Id);
+
         var user = await userService.GetUser(context.User.Id);
-        
-        await userService.EnsureUserExistsAsync(member.Id);
         var other = await userService.GetUser(member.Id);
-        
-        if (user is null || other is null)
-        {
-            await context.RespondAsync("An error occurred while retrieving the user data.");
-            return;
-        }
 
         if (!await userService.TryTransferTo(user, other, amount))
         {
