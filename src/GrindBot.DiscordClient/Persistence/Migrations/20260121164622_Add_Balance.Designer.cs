@@ -3,6 +3,7 @@ using System;
 using GrindBot.DiscordClient.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GrindBot.DiscordClient.Persistence.Migrations
 {
     [DbContext(typeof(DiscordDbContext))]
-    partial class DiscordDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260121164622_Add_Balance")]
+    partial class Add_Balance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.2");

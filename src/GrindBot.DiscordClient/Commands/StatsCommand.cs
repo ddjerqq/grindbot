@@ -21,7 +21,7 @@ public sealed class StatsCommand(UserService userService)
             .WithTitle("📊 User Stats")
             .WithDescription($"Stats for {(member ?? context.User).Mention}")
             .AddField("XP", user?.Xp.ToString() ?? "0", true)
-            .AddField("Level", "0", true)
+            .AddField("Level", user?.Level.ToString() ?? "0", true)
             .WithFooter("Keep chatting and catching stars to earn more XP!");
 
         await context.RespondAsync(embed);

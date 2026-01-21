@@ -1,4 +1,5 @@
-﻿using GrindBot.DiscordClient.Persistence;
+﻿using System.Diagnostics.CodeAnalysis;
+using GrindBot.DiscordClient.Persistence;
 
 namespace GrindBot.DiscordClient.Services;
 
@@ -36,5 +37,21 @@ public sealed class UserService(DiscordDbContext db)
 
         user.StarCaught();
         await db.SaveChangesAsync();
+    }
+
+    public Task<bool> TryCollectDailyReward(User user, [NotNullWhen(false)] out DateTime? collectNextAt)
+    {
+        return user.TryCollectDaily(out collectNextAt) 
+            ? Task.FromResult(false) 
+            : db.SaveChangesAsync().ContinueWith(_ => true);
+    }
+
+    public async Task<bool> TryTransferTo(User user, User other, int amount)
+    {
+        if (!user.TryTransfer(other, amount))
+            return false;
+
+        await db.SaveChangesAsync();
+        return true;
     }
 }
