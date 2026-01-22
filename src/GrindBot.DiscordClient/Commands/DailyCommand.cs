@@ -20,6 +20,6 @@ public sealed class DailyCommand(UserService userService)
             return;
         }
 
-        await context.RespondAsync($"Balance: ${user.Balance}");
+        await context.RespondAsync($"You collected your daily reward!\nBalance: ${user.Balance}");
     }
 }
