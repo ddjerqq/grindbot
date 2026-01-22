@@ -25,6 +25,8 @@ public sealed class GiveCommand(UserService userService)
             return;
         }
 
-        await context.RespondAsync($"You sent {member.Mention} ${amount}.\nYour Balance: ${user.Balance}\nTheir Balance: ${other.Balance}");
+        await context.RespondAsync($"You sent ${amount} to {member.Mention}\n" +
+                                   $"\n{context.User.Mention}'s Balance: ${user.Balance}" +
+                                   $"\n{member.Mention}'s Balance: ${other.Balance}");
     }
 }
