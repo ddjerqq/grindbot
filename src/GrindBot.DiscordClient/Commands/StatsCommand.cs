@@ -14,14 +14,16 @@ public sealed class StatsCommand(UserService userService)
     {
         var userId = member?.Id ?? context.User.Id;
         var user = await userService.GetUser(userId);
-        
+        var invoker = member ?? context.User;
+
         var embed = new DiscordEmbedBuilder()
             .WithColor(DiscordColor.White)
-            .WithTitle("📊 User Stats")
-            .WithDescription($"Stats for {(member ?? context.User).Mention}")
-            .AddField("XP", user?.Xp.ToString() ?? "0", true)
-            .AddField("Level", user?.Level.ToString() ?? "0", true)
-            .WithFooter("Keep chatting and catching stars to earn more XP!");
+            .WithTitle("📊 Stats")
+            .WithDescription($"Stats for {invoker.Mention}")
+            .WithAuthor(invoker.Username, invoker.AvatarUrl, invoker.AvatarUrl)
+            .AddField("XP", $"{user.Xp}")
+            .AddField("Level", $"{user.Level}")
+            .AddField("Balance", $"${user.Balance}");
 
         await context.RespondAsync(embed);
     }

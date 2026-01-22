@@ -11,11 +11,6 @@ public sealed class PingCommand
     [Description("Pings the bot")]
     public async ValueTask ExecuteAsync(SlashCommandContext context)
     {
-        var embed = new DiscordEmbedBuilder()
-            .WithColor(DiscordColor.White)
-            .WithAuthor("🏓 Pong!")
-            .WithFooter($"Latency: {context.Client.GetConnectionLatency(context.Guild!.Id):g}");
-
-        await context.RespondAsync(embed);
+        await context.RespondAsync($"🏓 Pong!\n-# Latency: {context.Client.GetConnectionLatency(context.Guild!.Id).Milliseconds}ms");
     }
 }

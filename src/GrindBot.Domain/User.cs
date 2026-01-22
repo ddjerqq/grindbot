@@ -5,9 +5,11 @@ namespace GrindBot.Domain;
 
 public sealed class User(ulong id)
 {
-    public static readonly int XpPerMessage = int.Parse((string)"XP__PER_MESSAGE".FromEnv());
-    public static readonly int XpPerStar = int.Parse((string)"XP__PER_STAR".FromEnv());
-    public static readonly int DailyRewardAmount = int.Parse((string)"CURRENCY__DAILY_REWARD_AMOUNT".FromEnv());
+    public static readonly int XpPerMessage = int.Parse("XP__PER_MESSAGE".FromEnv());
+    public static readonly int XpPerStar = int.Parse("XP__PER_STAR".FromEnv());
+    // star reward
+    public static readonly int MoneyPerStar = int.Parse("CURRENCY__PER_STAR".FromEnv());
+    public static readonly int DailyRewardAmount = int.Parse("CURRENCY__DAILY_REWARD_AMOUNT".FromEnv());
 
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public ulong Id { get; init; } = id;
@@ -52,5 +54,6 @@ public sealed class User(ulong id)
     public void StarCaught()
     {
         Xp += XpPerStar;
+        Balance += MoneyPerStar;
     }
 }

@@ -18,7 +18,8 @@ public sealed class MessageReactionAddedEventHandler(UserService userService, IM
         if (entry != ctx.Message.Id) return;
 
         cache.Remove(CacheKeys.CurrentStarMessageIdKey);
-        await userService.UserStarredMessage(ctx.User.Id);
-        await ctx.Message.Channel!.SendMessageAsync($"{ctx.User.Mention} starred a message! ⭐");
+        var user = await userService.GetUser(ctx.User.Id);
+        user.StarCaught();
+        await ctx.Message.Channel!.SendMessageAsync($"{ctx.User.Mention} starred a message! ⭐\nYou gained xp and $$$");
     }
 }

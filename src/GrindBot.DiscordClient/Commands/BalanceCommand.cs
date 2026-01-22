@@ -14,13 +14,6 @@ public sealed class BalanceCommand(UserService userService)
     {
         var userId = member?.Id ?? context.User.Id;
         var user = await userService.GetUser(userId);
-                
-        var embed = new DiscordEmbedBuilder()
-            .WithColor(DiscordColor.White)
-            .WithTitle("💰 User balance")
-            .WithDescription($"Balance for {(member ?? context.User).Mention}")
-            .AddField("Money", user.Balance.ToString(), true);
-
-        await context.RespondAsync(embed);
+        await context.RespondAsync($"Balance: ${user.Balance}");
     }
 }
