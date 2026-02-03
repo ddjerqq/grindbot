@@ -26,7 +26,7 @@ public sealed class MessageCreatedEventHandler(UserService userService, IMemoryC
 
     private async Task HandleRandomStar(MessageCreatedEventArgs ctx)
     {
-        if (Random.Shared.Next(1, 100) >= 3) return;
+        if (Random.Shared.Next(1, 100) <= 99) return;
         await ctx.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("⭐"));
         cache.Set(CacheKeys.CurrentStarMessageIdKey, ctx.Message.Id, TimeSpan.FromMinutes(5));
     }

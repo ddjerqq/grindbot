@@ -24,7 +24,7 @@ public static class ServiceCollectionExt
 
             services.AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(IAppDbContext).Assembly); });
 
-            # region samoqalaqo services
+            #region samoqalaqo services
 
             services.AddDbContext<SamoqalaqoDbContext>(options =>
             {
@@ -37,6 +37,8 @@ public static class ServiceCollectionExt
 
             #endregion
 
+            services.AddScoped<SherlockService>();
+            
             return services;
         }
     }
