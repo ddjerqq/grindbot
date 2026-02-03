@@ -1,12 +1,13 @@
 using DSharpPlus;
 using DSharpPlus.EventArgs;
 using GrindBot.Application.Services;
+using GrindBot.Domain.Common;
 
 namespace GrindBot.DiscordClient.Events;
 
 public sealed class GuildMemberAddedEventHandler(UserService userService) : IEventHandler<GuildMemberAddedEventArgs>
 {
-    private static readonly ulong WelcomeChannelId = ulong.Parse("WELCOME_CHANNEL_ID".FromEnv());
+    private static readonly ulong WelcomeChannelId = ulong.Parse("DISCORD_WELCOME_CHANNEL_ID".FromEnv());
     
     public async Task HandleEventAsync(DSharpPlus.DiscordClient bot, GuildMemberAddedEventArgs ctx)
     {

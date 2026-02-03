@@ -5,6 +5,7 @@ using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.SlashCommands.InteractionNamingPolicies;
 using DSharpPlus.Entities;
 using GrindBot.DiscordClient.Common;
+using GrindBot.Domain.Common;
 using Serilog;
 
 #region env and logging

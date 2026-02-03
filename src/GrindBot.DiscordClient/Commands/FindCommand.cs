@@ -1,0 +1,86 @@
+﻿using System.ComponentModel;
+using System.Globalization;
+using System.Text.RegularExpressions;
+using DSharpPlus.Commands;
+using DSharpPlus.Commands.Processors.SlashCommands;
+using DSharpPlus.Entities;
+using GrindBot.Application.Services;
+using GrindBot.Domain;
+using GrindBot.Domain.Common;
+using Serilog;
+
+namespace GrindBot.DiscordClient.Commands;
+
+public sealed partial class FindCommand(SamoqalaqoService samoqalaqo)
+{
+    [Command("find")]
+    [Description("Find a person in the database by their first and last name (supports latin and georgian letters)")]
+    public async ValueTask ExecuteAsync(SlashCommandContext context, [Description("first name")] string firstName, [Description("last name")] string lastName)
+    {
+        await context.DeferResponseAsync(true);
+
+        var nameMatch = NameMatch();
+        if (!nameMatch.IsMatch(firstName) || !nameMatch.IsMatch(lastName))
+        {
+            await context.FollowupAsync("First and lastName name must be provided.");
+            return;
+        }
+
+        var people = await samoqalaqo.GetPeopleAsync(firstName, lastName);
+
+        Log.Logger.Information("User <{Username} {UserId}> requested lookup for {First} {Last}, found {Count} results", context.User.Username, context.User.Id, firstName, lastName, people.Count);
+
+        if (people.Count == 0)
+        {
+            await context.FollowupAsync("404 - Not found");
+        }
+        else
+        {
+            var person = people.First();
+            var personImage = await samoqalaqo.GetPersonImageAsync(person.Id);
+            var personInfoMessage = GetPersonInfoMessage(person, personImage!, 0, people.Count);
+            await context.FollowupAsync(personInfoMessage);
+        }
+    }
+
+    public static DiscordMessageBuilder GetPersonInfoMessage(Person person, byte[] personImage, int page, int total)
+    {
+        var messageBuilder = total > 1
+            ? GetPaginationKeyboard(person, page, total)
+            : new DiscordMessageBuilder();
+
+        var embed = new DiscordEmbedBuilder()
+            .WithColor(DiscordColor.White)
+            .AddField("ID", person.Id.ToString("00000000000"), true)
+            .AddField("Name", $"{person.FirstName.LatinToGeo()} {person.LastName.LatinToGeo()}", true)
+            .AddField("Age", $"{person.Age:F1} ({person.DateOfBirth.ToString("D", new CultureInfo("ka-GE"))})")
+            .AddField("Address", person.Address.LatinToGeo())
+            .WithImageUrl($"attachment://{person.Id}.png")
+            .WithTimestamp(DateTimeOffset.UtcNow.AddMinutes(15))
+            .WithFooter("This message will self-destruct")
+            .Build();
+
+        messageBuilder.AddEmbed(embed);
+
+        using var stream = new MemoryStream(personImage);
+        messageBuilder.AddFile($"{person.Id}.png", stream, AddFileOptions.CopyStream);
+
+        return messageBuilder;
+    }
+
+    private static DiscordMessageBuilder GetPaginationKeyboard(Person person, int page, int total)
+    {
+        return new DiscordMessageBuilder()
+            .AddActionRowComponent(
+                new DiscordButtonComponent(DiscordButtonStyle.Secondary, $"person_lookup_{person.FirstName}_{person.LastName}_one_page_{Math.Max(0, page - 1)}", "◀️"),
+                new DiscordButtonComponent(DiscordButtonStyle.Danger, $"clear_{person.FirstName}_{person.LastName}", "❌"),
+                new DiscordButtonComponent(DiscordButtonStyle.Secondary, $"person_lookup_{person.FirstName}_{person.LastName}_one_page_{Math.Min(total, page + 1)}", "▶️"))
+            .AddActionRowComponent(
+                new DiscordButtonComponent(DiscordButtonStyle.Secondary, $"person_lookup_{person.FirstName}_{person.LastName}_five_page_{Math.Max(0, page - 5)}", "⏮️"),
+                new DiscordButtonComponent(DiscordButtonStyle.Success, "page_number", total > 1 ? $"{page + 1} / {total}" : "1/1", true),
+                new DiscordButtonComponent(DiscordButtonStyle.Secondary, $"person_lookup_{person.FirstName}_{person.LastName}_five_page_{Math.Min(total, page + 5)}", "⏭️"));
+    }
+
+    [GeneratedRegex("[ა-ზa-zA-Z]")]
+    private static partial Regex NameMatch();
+}

@@ -1,11 +1,12 @@
 using DSharpPlus;
 using DSharpPlus.EventArgs;
+using GrindBot.Domain.Common;
 
 namespace GrindBot.DiscordClient.Events;
 
 public sealed class GuildMemberRemovedEventHandler : IEventHandler<GuildMemberRemovedEventArgs>
 {
-    private static readonly ulong GoodbyeChannelId = ulong.Parse("GOODBYE_CHANNEL_ID".FromEnv());
+    private static readonly ulong GoodbyeChannelId = ulong.Parse("DISCORD_GOODBYE_CHANNEL_ID".FromEnv());
 
     public async Task HandleEventAsync(DSharpPlus.DiscordClient bot, GuildMemberRemovedEventArgs ctx)
     {

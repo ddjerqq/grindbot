@@ -7,11 +7,11 @@ namespace GrindBot.DiscordClient.Events;
 
 public sealed class GuildDownloadCompletedEventHandler(UserService userService) : IEventHandler<GuildDownloadCompletedEventArgs>
 {
-    public async Task HandleEventAsync(DSharpPlus.DiscordClient sender, GuildDownloadCompletedEventArgs eventArgs)
+    public async Task HandleEventAsync(DSharpPlus.DiscordClient bot, GuildDownloadCompletedEventArgs ctx)
     {
-        Log.Logger.Information("Guild download completed for {GuildCount} guilds", sender.Guilds.Count);
+        Log.Logger.Information("Guild download completed for {GuildCount} guilds", bot.Guilds.Count);
 
-        foreach (var guild in sender.Guilds.Values)
+        foreach (var guild in bot.Guilds.Values)
         {
             await foreach (var member in guild.GetAllMembersAsync())
             {
@@ -22,7 +22,7 @@ public sealed class GuildDownloadCompletedEventHandler(UserService userService) 
             }
         }
 
-        Log.Logger.Information("Guild download completed for {GuildCount} guilds", sender.Guilds.Count);
-        Log.Logger.Information("Logged in as {BotId} <{BotUser}>", sender.CurrentUser.Username, sender.CurrentUser.Id);
+        Log.Logger.Information("Guild download completed for {GuildCount} guilds", bot.Guilds.Count);
+        Log.Logger.Information("Logged in as {BotId} <{BotUser}>", bot.CurrentUser.Username, bot.CurrentUser.Id);
     }
 }

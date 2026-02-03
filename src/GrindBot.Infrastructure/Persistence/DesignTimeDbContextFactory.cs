@@ -1,4 +1,5 @@
 using dotenv.net;
+using GrindBot.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -11,7 +12,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbConte
         var solutionDir = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent;
         DotEnv.Fluent().WithTrimValues().WithEnvFiles($"{solutionDir}/.env").WithOverwriteExistingVars().Load();
         
-        var dataSource = "DB_PATH".FromEnv();
+        var dataSource = "ECONOMY_DB_PATH".FromEnv();
 
         var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
         optionsBuilder.UseSqlite($"Data Source={dataSource}");

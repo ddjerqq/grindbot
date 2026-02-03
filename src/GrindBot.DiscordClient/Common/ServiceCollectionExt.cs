@@ -1,5 +1,6 @@
 ﻿using GrindBot.Application.Abstractions;
 using GrindBot.Application.Services;
+using GrindBot.Domain.Common;
 using GrindBot.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,18 +14,28 @@ public static class ServiceCollectionExt
         {
             services.AddDbContext<AppDbContext>(options =>
             {
-                var dataSource = "DB_PATH".FromEnv();
+                var dataSource = "ECONOMY_DB_PATH".FromEnv();
                 options.UseSqlite($"Data Source={dataSource}");
             });
             services.AddScoped<IAppDbContext, AppDbContext>();
 
             services.AddMemoryCache();
             services.AddSingleton<UserService>();
-            
-            services.AddMediatR(cfg =>
+
+            services.AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(IAppDbContext).Assembly); });
+
+            # region samoqalaqo services
+
+            services.AddDbContext<SamoqalaqoDbContext>(options =>
             {
-                cfg.RegisterServicesFromAssembly(typeof(IAppDbContext).Assembly);
+                var dataSource = "SAMOQALAQO_DB_PATH".FromEnv();
+                options.UseSqlite($"Data Source={dataSource};Mode=ReadOnly");
+                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
+            services.AddScoped<ISamoqalaqoRepository, SamoqalaqoDbContext>();
+            services.AddScoped<SamoqalaqoService>();
+
+            #endregion
 
             return services;
         }
