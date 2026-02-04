@@ -3,6 +3,7 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Entities;
 using GrindBot.Application.Services;
+using GrindBot.Domain.Common;
 
 namespace GrindBot.DiscordClient.Commands;
 
@@ -15,8 +16,7 @@ public sealed class DailyCommand(UserService userService)
         var user = await userService.GetUser(context.User.Id);
         if (!user.TryCollectDaily(out var collectNextAt))
         {
-            var nextMs = new DateTimeOffset(collectNextAt.Value).ToUnixTimeMilliseconds();
-            await context.RespondAsync($"You cannot collect your daily reward yet. Next collection available at <t:{nextMs}:R>.");
+            await context.RespondAsync($"You cannot collect your daily reward yet. Next collection available at {collectNextAt.FormatRelative()}.");
             return;
         }
 

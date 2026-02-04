@@ -1,25 +1,43 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using GrindBot.Domain.Common;
 
 namespace GrindBot.Domain;
 
 public sealed class User(ulong id)
 {
-    public static readonly int XpPerMessage = int.Parse("XP__PER_MESSAGE".FromEnv());
-    public static readonly int XpPerStar = int.Parse("XP__PER_STAR".FromEnv());
-    // star reward
-    public static readonly int MoneyPerStar = int.Parse("CURRENCY__PER_STAR".FromEnv());
-    public static readonly int DailyRewardAmount = int.Parse("CURRENCY__DAILY_REWARD_AMOUNT".FromEnv());
+    public const int XpPerMessage = 1;
+    public const int XpPerStar = 25;
+    public const int MoneyPerStar = 50;
+    public const int DailyRewardAmount = 100;
 
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public ulong Id { get; init; } = id;
     public int Xp { get; set; }
-    public int Level => Xp / 100;
-    
     public int Balance { get; private set; }
     public DateTime DailyCollectedAt { get; private set; } = DateTime.MinValue;
+    
+    
+    public int Cookies { get; private set; }
+    public DateTime CookieSentAt { get; private set; } = DateTime.MinValue;
 
+    public int Level => Xp / 100;
+
+    public bool TrySendCookie(User receiver, [NotNullWhen(false)] out DateTime? sendNextAt)
+    {
+        sendNextAt = null;
+        
+        // check if 24 hours have passed since last collection
+        if ((DateTime.UtcNow - CookieSentAt).TotalHours < 24)
+        {
+            sendNextAt = CookieSentAt.AddHours(24);
+            return false;
+        }
+
+        receiver.Cookies += 1;
+        CookieSentAt = DateTime.UtcNow;
+        return true;
+    }
+    
     public bool TryCollectDaily([NotNullWhen(false)] out DateTime? collectNextAt)
     {
         collectNextAt = null;
