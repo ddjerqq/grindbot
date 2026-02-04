@@ -13,21 +13,21 @@ public sealed class ComponentInteractionCreatedEventHandler(SamoqalaqoService sa
         switch (ctx.Interaction.Data.CustomId.Split("_"))
         {
             case ["person", "lookup", var first, var last, "one" or "five", "page", var pageString] when int.TryParse(pageString, out var page):
-                // we need to delete the previous response and send a new one with updated page
-                await ctx.Interaction.CreateResponseAsync(
-                    DiscordInteractionResponseType.DeferredChannelMessageWithSource,
-                    new DiscordInteractionResponseBuilder().AsEphemeral());
                 var people = await samoqalaqo.GetPeopleAsync(first, last);
                 var person = people[page];
                 var personImage = await samoqalaqo.GetPersonImageAsync(person.Id);
                 var personInfoMessage = FindCommand.GetPersonInfoMessage(person, personImage!, page, people.Count);
-                await ctx.Interaction.DeleteOriginalResponseAsync();
-                await ctx.Interaction.CreateFollowupMessageAsync(
-                    new DiscordFollowupMessageBuilder(personInfoMessage).AsEphemeral());
+
+                await ctx.Interaction.Message!.DeleteAsync();
+                await ctx.Interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder(personInfoMessage));
                 break;
+
             case ["clear", var first, var last]:
-                await ctx.Interaction.CreateResponseAsync(DiscordInteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().WithContent("Cache cleared!"));
+                await ctx.Interaction.Message!.DeleteAsync();
                 samoqalaqo.ClearCache(first, last);
+                await ctx.Interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("cleared!"));
+                await Task.Delay(500);
+                await ctx.Interaction.DeleteOriginalResponseAsync();
                 break;
         }
     }

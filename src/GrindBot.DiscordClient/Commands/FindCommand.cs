@@ -17,7 +17,7 @@ public sealed partial class FindCommand(SamoqalaqoService samoqalaqo)
     [Description("Find a person in the database by their first and last name (supports latin and georgian letters)")]
     public async ValueTask ExecuteAsync(SlashCommandContext context, [Description("first name")] string firstName, [Description("last name")] string lastName)
     {
-        await context.DeferResponseAsync(true);
+        await context.DeferResponseAsync();
 
         var nameMatch = NameMatch();
         if (!nameMatch.IsMatch(firstName) || !nameMatch.IsMatch(lastName))
@@ -51,8 +51,8 @@ public sealed partial class FindCommand(SamoqalaqoService samoqalaqo)
 
         var embed = new DiscordEmbedBuilder()
             .WithColor(DiscordColor.White)
-            .AddField("ID", person.Id.ToString("00000000000"), true)
-            .AddField("Name", $"{person.FirstName.LatinToGeo()} {person.LastName.LatinToGeo()}", true)
+            .AddField("ID", person.Id.ToString("00000000000"))
+            .AddField("Name", $"{person.FirstName.LatinToGeo()} {person.LastName.LatinToGeo()}")
             .AddField("Age", $"{person.Age:F1} ({person.DateOfBirth.ToString("D", new CultureInfo("ka-GE"))})")
             .AddField("Address", person.Address.LatinToGeo())
             .WithImageUrl($"attachment://{person.Id}.png")
