@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands;
-using DSharpPlus.Entities;
 
 namespace GrindBot.DiscordClient.Commands;
 

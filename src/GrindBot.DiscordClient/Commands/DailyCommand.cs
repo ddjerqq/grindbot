@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands;
-using DSharpPlus.Entities;
 using GrindBot.Application.Services;
 using GrindBot.Domain.Common;
 

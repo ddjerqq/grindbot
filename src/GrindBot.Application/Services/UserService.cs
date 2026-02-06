@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using GrindBot.Application.Abstractions;
+﻿using GrindBot.Application.Abstractions;
 using GrindBot.Domain;
 
 namespace GrindBot.Application.Services;

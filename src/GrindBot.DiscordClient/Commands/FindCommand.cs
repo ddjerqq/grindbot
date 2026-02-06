@@ -1,12 +1,10 @@
 ﻿using System.ComponentModel;
-using System.Globalization;
 using System.Text.RegularExpressions;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Entities;
 using GrindBot.Application.Services;
 using GrindBot.Domain;
-using GrindBot.Domain.Common;
 using Serilog;
 
 namespace GrindBot.DiscordClient.Commands;
@@ -17,7 +15,7 @@ public sealed partial class FindCommand(SamoqalaqoService samoqalaqo)
     [Description("Find a person in the database by their first and last name (supports latin and georgian letters)")]
     public async ValueTask ExecuteAsync(SlashCommandContext context, [Description("first name")] string firstName, [Description("last name")] string lastName)
     {
-        await context.DeferResponseAsync();
+        await context.DeferResponseAsync(ephemeral: true);
 
         var nameMatch = NameMatch();
         if (!nameMatch.IsMatch(firstName) || !nameMatch.IsMatch(lastName))
@@ -37,13 +35,12 @@ public sealed partial class FindCommand(SamoqalaqoService samoqalaqo)
         else
         {
             var person = people.First();
-            var personImage = await samoqalaqo.GetPersonImageAsync(person.Id);
-            var personInfoMessage = GetPersonInfoMessage(person, personImage!, 0, people.Count);
-            await context.FollowupAsync(personInfoMessage);
+            var personInfoMessage = GetPersonInfoMessage(person, 0, people.Count);
+            await context.FollowupAsync(new DiscordFollowupMessageBuilder(personInfoMessage).AsEphemeral());
         }
     }
 
-    public static DiscordMessageBuilder GetPersonInfoMessage(Person person, byte[] personImage, int page, int total)
+    public static DiscordMessageBuilder GetPersonInfoMessage(Person person, int page, int total)
     {
         var messageBuilder = total > 1
             ? GetPaginationKeyboard(person, page, total)
@@ -51,18 +48,15 @@ public sealed partial class FindCommand(SamoqalaqoService samoqalaqo)
 
         var embed = new DiscordEmbedBuilder()
             .WithColor(DiscordColor.White)
-            .AddField("ID", person.Id.ToString("00000000000"))
-            .AddField("Name", $"{person.FirstName.LatinToGeo()} {person.LastName.LatinToGeo()}")
-            .AddField("Age", $"{person.Age:F1} ({person.DateOfBirth.ToString("D", new CultureInfo("ka-GE"))})")
-            .AddField("Address", person.Address.LatinToGeo())
+            .WithDescription(person.CaptionMarkup)
             .WithImageUrl($"attachment://{person.Id}.png")
-            .WithTimestamp(DateTimeOffset.UtcNow.AddMinutes(15))
+            .WithTimestamp(DateTimeOffset.UtcNow.AddMinutes(5))
             .WithFooter("This message will self-destruct")
             .Build();
 
         messageBuilder.AddEmbed(embed);
 
-        using var stream = new MemoryStream(personImage);
+        using var stream = new MemoryStream(person.Image);
         messageBuilder.AddFile($"{person.Id}.png", stream, AddFileOptions.CopyStream);
 
         return messageBuilder;
