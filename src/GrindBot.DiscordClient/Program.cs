@@ -23,7 +23,7 @@ Log.Logger = new LoggerConfiguration()
 
 #endregion
 
-var guildId = ulong.Parse("DISCORD_GUILD_ID".FromEnv());
+var guildIds = "DISCORD_GUILD_IDS".FromEnv().Split(';').Select(ulong.Parse).ToArray();
 
 var eventHandlerTypes = typeof(Program).Assembly.GetTypes()
     .Where(x => x.GetInterfaces().Contains(typeof(IEventHandler)))
@@ -43,7 +43,7 @@ var discord = DiscordClientBuilder.CreateDefault(token, intents)
             NamingPolicy = new SnakeCaseNamingFixer(),
         }));
         commands.AddChecks(typeof(Program).Assembly);
-        commands.AddCommands(typeof(Program).Assembly, guildId);
+        commands.AddCommands(typeof(Program).Assembly, guildIds);
     })
     .UseZlibCompression()
     .Build();
