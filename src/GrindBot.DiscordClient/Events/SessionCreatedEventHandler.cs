@@ -17,8 +17,6 @@ public sealed class SessionCreatedEventHandler(AppDbContext db) : IEventHandler<
             await db.Database.MigrateAsync();
         }
 
-        Log.Information("All migrations applied");
-
         await db.SaveChangesAsync();
     }
 }

@@ -20,13 +20,14 @@ public sealed partial class FindCommand(SamoqalaqoService samoqalaqo)
         var nameMatch = NameMatch();
         if (!nameMatch.IsMatch(firstName) || !nameMatch.IsMatch(lastName))
         {
+            Log.Logger.Warning("User {Username} <@{UserId}> requested invalid lookup for {First} {Last}", context.User.Username, context.User.Id, firstName, lastName);
             await context.FollowupAsync("First and lastName name must be provided.");
             return;
         }
 
         var people = await samoqalaqo.GetPeopleAsync(firstName, lastName);
 
-        Log.Logger.Information("User <{Username} {UserId}> requested lookup for {First} {Last}, found {Count} results", context.User.Username, context.User.Id, firstName, lastName, people.Count);
+        Log.Logger.Information("User {Username} <@{UserId}> requested lookup for {First} {Last}, found {Count} results", context.User.Username, context.User.Id, firstName, lastName, people.Count);
 
         if (people.Count == 0)
         {

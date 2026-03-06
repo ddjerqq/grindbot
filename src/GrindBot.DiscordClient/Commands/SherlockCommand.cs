@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Text.RegularExpressions;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Entities;
@@ -7,7 +8,7 @@ using Serilog;
 
 namespace GrindBot.DiscordClient.Commands;
 
-public sealed class SherlockCommand(SherlockService sherlock)
+public sealed partial class SherlockCommand(SherlockService sherlock)
 {
     [Command("sherlock")]
     [Description("Investigate a username across various social media platforms")]
@@ -19,7 +20,14 @@ public sealed class SherlockCommand(SherlockService sherlock)
         var isEphemeral = ephemeral is true;
         await ctx.DeferResponseAsync(isEphemeral);
 
-        Log.Logger.Information("User <{Username} {UserId}> requested an investigation for: {Target}", ctx.User.Username, ctx.User.Id, username);
+        Log.Logger.Information("User {Username} <@{UserId}> requested an investigation for: {Target}", ctx.User.Username, ctx.User.Id, username);
+
+        if (!UsernameMatch().IsMatch(username))
+        {
+            Log.Logger.Warning("User {Username} <@{UserId}> requested an investigation for an invalid target: {Target}", ctx.User.Username, ctx.User.Id, username);
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Invalid username. Usernames can only contain letters, numbers, and underscores."));
+            return;
+        }
 
         var results = await sherlock.Investigate(username);
 
@@ -36,9 +44,13 @@ public sealed class SherlockCommand(SherlockService sherlock)
             .WithThumbnail("https://avatars.githubusercontent.com/u/48293496?s=512")
             .WithTimestamp(DateTimeOffset.UtcNow);
 
-        foreach (var result in results)
+        // TODO make pagination here, instead of taking 20
+        foreach (var result in results.Take(20))
             embed.AddField(result.Name, result.UrlUser);
 
         await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
     }
+    
+    [GeneratedRegex("^[a-zA-Z0-9_]+$")]
+    private static partial Regex UsernameMatch();
 }
