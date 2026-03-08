@@ -17,4 +17,8 @@
         <ProjectReference Include="..\GrindBot.Domain\GrindBot.Domain.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Economy\" />
+    </ItemGroup>
+
 </Project>
