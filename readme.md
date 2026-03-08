@@ -7,3 +7,6 @@ A discord bot for the Grindhouse discord server.
 - OSINT commands
 - Moderation commands
 - Fun commands
+
+## Setup
+- Clone the repository
