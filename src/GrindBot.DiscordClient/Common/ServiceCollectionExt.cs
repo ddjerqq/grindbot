@@ -24,19 +24,6 @@ public static class ServiceCollectionExt
 
             services.AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(IAppDbContext).Assembly); });
 
-            #region samoqalaqo services
-
-            services.AddDbContext<SamoqalaqoDbContext>(options =>
-            {
-                var dataSource = "SAMOQALAQO_DB_PATH".FromEnv();
-                options.UseSqlite($"Data Source={dataSource};Mode=ReadOnly");
-                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-            });
-            services.AddScoped<ISamoqalaqoRepository, SamoqalaqoDbContext>();
-            services.AddScoped<SamoqalaqoService>();
-
-            #endregion
-
             services.AddScoped<SherlockService>();
             
             return services;
