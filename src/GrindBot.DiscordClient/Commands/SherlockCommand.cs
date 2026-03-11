@@ -10,6 +10,8 @@ namespace GrindBot.DiscordClient.Commands;
 
 public sealed partial class SherlockCommand(SherlockService sherlock)
 {
+    private const int PageSize = 10;
+    public static readonly Dictionary<string, List<SherlockResponse>> Cache = new();
     [Command("sherlock")]
     [Description("Investigate a username across various social media platforms")]
     public async ValueTask ExecuteAsync(
@@ -33,22 +35,58 @@ public sealed partial class SherlockCommand(SherlockService sherlock)
 
         if (results.Count == 0)
         {
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"No results found for username '{username}'."));
+            await ctx.EditResponseAsync(
+                new DiscordWebhookBuilder()
+                    .WithContent($"No results found for username '{username}'."));
             return;
         }
+        
+        Cache[username] = results;
+
+        var builder = BuildPage(username, results, 0);
+
+        await ctx.EditResponseAsync(builder);
+    }
+
+    public static DiscordWebhookBuilder BuildPage(string username, List<SherlockResponse> results, int page)
+    {
+        var totalPages = (int)Math.Ceiling(results.Count / (double)PageSize);
+        page = Math.Clamp(page, 0, totalPages-1);
 
         var embed = new DiscordEmbedBuilder()
             .WithTitle($"Investigation Results for '{username}'")
             .WithColor(DiscordColor.White)
             .WithAuthor("sherlock", "https://github.com/sherlock-project/sherlock", "https://avatars.githubusercontent.com/u/48293496?s=512")
             .WithThumbnail("https://avatars.githubusercontent.com/u/48293496?s=512")
+            .WithFooter($"Page {page + 1}/{totalPages}")
             .WithTimestamp(DateTimeOffset.UtcNow);
 
-        // TODO make pagination here, instead of taking 20
-        foreach (var result in results.Take(20))
+        foreach (var result in results
+            .Skip(page*PageSize)
+            .Take(PageSize))
+        {
             embed.AddField(result.Name, result.UrlUser);
+        }
 
-        await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+        var builder = new DiscordWebhookBuilder().AddEmbed(embed);
+        var previousDisabled = page == 0;
+        var nextDisabled = page == totalPages - 1;
+
+        builder.AddActionRowComponent(
+            new DiscordButtonComponent(
+                DiscordButtonStyle.Secondary,
+                $"sherlock_prev_{username}_{page}",
+                "Prev",
+                previousDisabled),
+
+            new DiscordButtonComponent(
+                DiscordButtonStyle.Secondary,
+                $"sherlock_next_{username}_{page}",
+                "Next",
+                nextDisabled)
+        );
+
+        return builder;
     }
     
     [GeneratedRegex("^[a-zA-Z0-9_]+$")]

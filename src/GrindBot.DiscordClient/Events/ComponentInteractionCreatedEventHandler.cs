@@ -1,5 +1,7 @@
 ﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using GrindBot.DiscordClient.Commands;
 
 namespace GrindBot.DiscordClient.Events;
 
@@ -7,20 +9,61 @@ public sealed class ComponentInteractionCreatedEventHandler : IEventHandler<Comp
 {
     public async Task HandleEventAsync(DSharpPlus.DiscordClient bot, ComponentInteractionCreatedEventArgs ctx)
     {
-        switch (ctx.Interaction.Data.CustomId.Split("_"))
+        var parts = ctx.Interaction.Data.CustomId.Split("_");
+
+        if (parts.Length == 0)
+            return;
+
+        var command = parts[0];
+
+        switch (command)
         {
-            // case ["person", "lookup", var first, var last, "one" or "five", "page", var pageString] when int.TryParse(pageString, out var page):
-            //     var people = await samoqalaqo.GetPeopleAsync(first, last);
-            //     var person = people[page];
-            //     var personInfoMessage = FindCommand.GetPersonInfoMessage(person, page, people.Count);
-            //     await ctx.Interaction.CreateResponseAsync(DiscordInteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder(personInfoMessage).AsEphemeral());
-            //     break;
-            //
-            // case ["clear", var first, var last]:
-            //     samoqalaqo.ClearCache(first, last);
-            //     await ctx.Interaction.CreateResponseAsync(DiscordInteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().WithContent("Cleared!").AsEphemeral());
-            //     await ctx.Interaction.DeleteOriginalResponseAsync();
-            //     break;
+            case "sherlock":
+                await HandleSherlock(ctx, parts);
+                break;
+
+            case "anothercommand":
+                await HandleAnotherCommand(ctx, parts);
+                break;
         }
+    }
+
+    private static async Task HandleSherlock(ComponentInteractionCreatedEventArgs ctx, string[] parts)
+    {
+        if (parts.Length != 4)
+            return;
+
+        var action = parts[1];
+        var username = parts[2];
+
+        if (!int.TryParse(parts[3], out var page))
+            return;
+
+        if (!SherlockCommand.Cache.TryGetValue(username, out var results))
+            return;
+
+        if (action == "next")
+            page++;
+        else if (action == "prev")
+            page--;
+
+        var webhook = SherlockCommand.BuildPage(username, results, page);
+
+        var response = new DiscordInteractionResponseBuilder();
+
+        foreach (var embed in webhook.Embeds)
+            response.AddEmbed(embed);
+
+        foreach (var row in webhook.ComponentActionRows)
+            response.AddActionRowComponent(row);
+
+        await ctx.Interaction.CreateResponseAsync(
+            DiscordInteractionResponseType.UpdateMessage,
+            response);
+    }
+
+    private static async Task HandleAnotherCommand(ComponentInteractionCreatedEventArgs ctx, string[] parts)
+    {
+        //Copy for another command
     }
 }
