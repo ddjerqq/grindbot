@@ -39,13 +39,16 @@ public sealed class ComponentInteractionCreatedEventHandler : IEventHandler<Comp
         if (!int.TryParse(parts[3], out var page))
             return;
 
-        if (!SherlockCommand.Cache.TryGetValue(username, out var results))
+        if (!SherlockCommand.TryGetCache(username, out var results))
             return;
 
-        if (action == "next")
-            page++;
         else if (action == "prev")
-            page--;
+        page = action switch
+        {
+            "next" => page + 1,
+            "prev" => page - 1,
+            _ => page
+        };
 
         var webhook = SherlockCommand.BuildPage(username, results, page);
 
@@ -64,6 +67,6 @@ public sealed class ComponentInteractionCreatedEventHandler : IEventHandler<Comp
 
     private static async Task HandleAnotherCommand(ComponentInteractionCreatedEventArgs ctx, string[] parts)
     {
-        //Copy for another command
+        // Copy for another command
     }
 }

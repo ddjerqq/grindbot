@@ -5,13 +5,14 @@ using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Entities;
 using GrindBot.Application.Services;
 using Serilog;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace GrindBot.DiscordClient.Commands;
 
 public sealed partial class SherlockCommand(SherlockService sherlock)
 {
     private const int PageSize = 10;
-    public static readonly Dictionary<string, List<SherlockResponse>> Cache = new();
+
     [Command("sherlock")]
     [Description("Investigate a username across various social media platforms")]
     public async ValueTask ExecuteAsync(
@@ -40,8 +41,7 @@ public sealed partial class SherlockCommand(SherlockService sherlock)
                     .WithContent($"No results found for username '{username}'."));
             return;
         }
-        
-        Cache[username] = results;
+
 
         var builder = BuildPage(username, results, 0);
 
@@ -51,7 +51,6 @@ public sealed partial class SherlockCommand(SherlockService sherlock)
     public static DiscordWebhookBuilder BuildPage(string username, List<SherlockResponse> results, int page)
     {
         var totalPages = (int)Math.Ceiling(results.Count / (double)PageSize);
-        page = Math.Clamp(page, 0, totalPages-1);
 
         var embed = new DiscordEmbedBuilder()
             .WithTitle($"Investigation Results for '{username}'")
@@ -62,7 +61,6 @@ public sealed partial class SherlockCommand(SherlockService sherlock)
             .WithTimestamp(DateTimeOffset.UtcNow);
 
         foreach (var result in results
-            .Skip(page*PageSize)
             .Take(PageSize))
         {
             embed.AddField(result.Name, result.UrlUser);
@@ -88,7 +86,7 @@ public sealed partial class SherlockCommand(SherlockService sherlock)
 
         return builder;
     }
-    
+
     [GeneratedRegex("^[a-zA-Z0-9_]+$")]
     private static partial Regex UsernameMatch();
 }
