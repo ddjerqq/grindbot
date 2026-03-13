@@ -12,6 +12,7 @@ namespace GrindBot.DiscordClient.Commands;
 public sealed partial class SherlockCommand(SherlockService sherlock)
 {
     private const int PageSize = 10;
+    private static readonly IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
 
     [Command("sherlock")]
     [Description("Investigate a username across various social media platforms")]
@@ -42,15 +43,21 @@ public sealed partial class SherlockCommand(SherlockService sherlock)
             return;
         }
 
+        _cache.Set(username, results, TimeSpan.FromMinutes(10));
 
         var builder = BuildPage(username, results, 0);
 
         await ctx.EditResponseAsync(builder);
     }
+    public static bool TryGetCache(string username, out List<SherlockResponse> results)
+    {
+        return _cache.TryGetValue(username, out results);
+    }
 
     public static DiscordWebhookBuilder BuildPage(string username, List<SherlockResponse> results, int page)
     {
         var totalPages = (int)Math.Ceiling(results.Count / (double)PageSize);
+        page = Math.Clamp(page, 0, totalPages - 1);
 
         var embed = new DiscordEmbedBuilder()
             .WithTitle($"Investigation Results for '{username}'")
@@ -61,6 +68,7 @@ public sealed partial class SherlockCommand(SherlockService sherlock)
             .WithTimestamp(DateTimeOffset.UtcNow);
 
         foreach (var result in results
+            .Skip(page * PageSize)
             .Take(PageSize))
         {
             embed.AddField(result.Name, result.UrlUser);

@@ -42,7 +42,6 @@ public sealed class ComponentInteractionCreatedEventHandler : IEventHandler<Comp
         if (!SherlockCommand.TryGetCache(username, out var results))
             return;
 
-        else if (action == "prev")
         page = action switch
         {
             "next" => page + 1,
